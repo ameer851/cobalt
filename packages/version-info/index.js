@@ -27,6 +27,10 @@ const readGit = (filename) => {
 }
 
 export const getCommit = async () => {
+    if (!root) {
+        return undefined;
+    }
+
     return (await readGit('.git/logs/HEAD'))
             ?.split('\n')
             ?.filter(String)
@@ -43,12 +47,20 @@ export const getBranch = async () => {
         return process.env.WORKERS_CI_BRANCH;
     }
 
+    if (!root) {
+        return undefined;
+    }
+
     return (await readGit('.git/HEAD'))
             ?.replace(/^ref: refs\/heads\//, '')
             ?.trim();
 }
 
 export const getRemote = async () => {
+    if (!root) {
+        return undefined;
+    }
+
     let remote = (await readGit('.git/config'))
                     ?.split('\n')
                     ?.find(line => line.includes('url = '))
@@ -63,7 +75,7 @@ export const getRemote = async () => {
     remote = remote?.replace(/\.git$/, '');
 
     if (!remote) {
-        throw 'could not parse remote';
+        return undefined;
     }
 
     return remote;
